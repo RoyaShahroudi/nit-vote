@@ -2,13 +2,15 @@ import {FC, SetStateAction, useState} from "react";
 import Input from "../../components/Input";
 import FormAction from "../../components/FormAction";
 import VoteImage from "../../images/vote.svg"
-import axios from "axios";
-import {setToken} from "../../utils";
+import {useNavigate} from "react-router-dom";
+import {useAuth} from "../../utils/auth";
 
 const Login: FC<{}> = () => {
 
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const navigate = useNavigate();
+    const auth = useAuth();
 
 
     const handleSubmit = (e: { preventDefault: () => void; }) => {
@@ -18,16 +20,30 @@ const Login: FC<{}> = () => {
 
 
     const handleLogin = () => {
-        axios.post(`${import.meta.env.VITE_API_BASE_URL}/v1/student/login`, {
-            studentNumber: username
-        }
-        )
-            .then((response: any) => {
-                setToken(response?.headers?.get('Authorization'));
+        fetch(`${import.meta.env.VITE_API_BASE_URL}/v1/student/login`, {
+            method: "post",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({// @ts-ignore
+                studentNumber: username,
+                password: password
             })
-            .catch((error) => {
-                console.error(error);
-            });
+        }).then(async (response: any) => {
+                if (response.ok) {
+                    const res = await response.json();
+                    // @ts-ignore
+                    auth?.login(response?.headers?.get('Authorization'), response.data);
+                    console.log("token: ", response?.headers?.get('Authorization'));
+                    navigate("/elections");
+                } else {
+                    throw new Error('Error: ' + response.status);
+                }
+            }
+        ).catch(error => {
+            console.log("error: ", error)
+        })
+
     }
 
     return (
@@ -50,12 +66,12 @@ const Login: FC<{}> = () => {
                             key="username"
                             handleChange={(e: { target: { value: SetStateAction<string>; }; }) => setUsername(e.target.value)}
                             value={username}
-                            labelText="نام کاربری"
+                            labelText="شماره دانشجویی"
                             labelFor="username"
                             id="username"
                             name="username"
                             isRequired={true}
-                            placeholder="نام کاربری"
+                            placeholder="شماره دانشجویی"
                         />
                         <Input
                             key="password"
