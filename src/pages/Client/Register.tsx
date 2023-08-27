@@ -3,13 +3,17 @@ import Input from "../../components/Input";
 import FormAction from "../../components/FormAction";
 import VoteImage from "../../images/vote.svg"
 import axios from "axios";
+import {useNavigate} from "react-router-dom";
+import {useAuth} from "../../utils/auth";
 
 const Register: FC<{}> = () => {
 
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-
+    const [passwordError, setPasswordError] = useState(false);
+    const navigate = useNavigate();
+    const auth = useAuth();
 
     const handleSubmit = (e: { preventDefault: () => void; }) => {
         e.preventDefault();
@@ -17,16 +21,23 @@ const Register: FC<{}> = () => {
     }
 
     const handleRegister = () => {
-
-        axios.post('http://localhost:8080/v1/student/register', {
-            studentNumber: username
-        })
-            .then((response) => {
-                console.log(response.data);
+        if(password !== confirmPassword) {
+            setPasswordError(true)
+        } else {
+            axios.post('http://localhost:8080/v1/student/register', {
+                studentNumber: username,
+                password: password
             })
-            .catch((error) => {
-                console.error(error);
-            });
+                .then((response: any) => {
+                    console.log(response.data);
+                    // @ts-ignore
+                    auth?.login(response?.headers?.get('Authorization'), response.data);
+                    navigate("/elections");
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
+        }
     }
 
     return (
@@ -65,8 +76,7 @@ const Register: FC<{}> = () => {
                             id="password"
                             name="password"
                             type="password"
-                            // isRequired={true}
-                            isRequired={false}
+                            isRequired={true}
                             placeholder="رمز عبور"
                         />
                         <Input
@@ -78,10 +88,10 @@ const Register: FC<{}> = () => {
                             id="confirmPassword"
                             name="confirmPassword"
                             type="password"
-                            // isRequired={true}
-                            isRequired={false}
+                            isRequired={true}
                             placeholder="تایید رمز عبور"
                         />
+                        {passwordError && <span>رمزعبورهای انتخاب شده مطابقت ندارند.</span>}
                         <FormAction handleSubmit={handleSubmit} text="ورود"/>
                     </div>
                 </form>

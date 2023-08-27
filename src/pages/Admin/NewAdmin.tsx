@@ -1,8 +1,8 @@
 import React, {FC, SetStateAction, useState} from "react";
 import Input from "../../components/Input";
 import FormAction from "../../components/FormAction";
-import VoteImage from "../../images/vote.svg"
 import Header from "../../components/Navbar";
+import {getTokens} from "../../utils";
 
 const NewAdmin: FC<{}> = () => {
 
@@ -12,12 +12,31 @@ const NewAdmin: FC<{}> = () => {
 
     const handleSubmit = (e: { preventDefault: () => void; }) => {
         e.preventDefault();
-        loginAccount()
+        submitAdmin()
     }
 
-//handle Signup API Integration here
-    const loginAccount = () => {
-
+    const submitAdmin = () => {
+        const tokens = getTokens();
+        fetch(`${import.meta.env.VITE_API_BASE_URL}/v1/admin/submit`, {
+            method: "post",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${tokens?.token}`
+            },
+            body: JSON.stringify({// @ts-ignore
+                username: username,
+                password: password
+            })
+        }).then(async (response: any) => {
+                if (response.ok) {
+                    const res = await response.json();
+                } else {
+                    throw new Error('Error: ' + response.status);
+                }
+            }
+        ).catch(error => {
+            console.log("error: ", error)
+        })
     }
 
     return (
