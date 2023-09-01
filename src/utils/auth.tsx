@@ -1,10 +1,10 @@
 import {createContext, useContext, useState} from "react";
-import {localStorageSetUser, removeTokens, setToken} from "./index";
+import {localStorageGetUser, localStorageSetUser, removeTokens, setToken} from "./index";
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({children}: any) => {
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState(localStorageGetUser());
 
     const login = (tokens: any, user: any) => {
         setUser(user);

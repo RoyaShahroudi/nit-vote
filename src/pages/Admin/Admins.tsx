@@ -1,22 +1,15 @@
-import {FC, useEffect, useState} from "react";
-import Header from "../../components/Navbar";
+import React, {FC, useEffect, useState} from "react";
+import Header from "../../components/Header";
 import List from "../../components/List";
 import login from "./Login";
 import {getTokens} from "../../utils";
-
-interface AdminState {
-    electionName: string;
-    candidateResults?: {candidate: {
-            id: number ,
-            name: string,
-            info: string
-        },
-        voteCount: number ,
-    }[]
-}
+import {AdminState} from "../../constants/types";
+import Layout from "../../components/Layout";
+import Loading from "../../components/Loading";
 
 const Admins: FC<{}> = () => {
     const [admins, setAdmins] = useState<AdminState[]>([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         getAdmins()
@@ -37,17 +30,26 @@ const Admins: FC<{}> = () => {
             }
         ).catch(error => {
             console.log("error: ", error)
+        }).finally(() => {
+            setLoading(false);
         })
     }
 
 
     return (
-        <>
-            <Header admin text="ادمین ها"/>
-            <div className="container px-3 ">
-                <List items={admins} ordered />
-            </div>
-        </>
+        <Layout admin>
+            {/*// @ts-ignore*/}
+            <>
+                <div className="font-bold text-gray-600 mb-6">
+                    لیست ادمین‌‌ها
+                </div>
+                {loading ?
+                    <Loading/>
+                    :
+                    <List items={admins}/>
+                }
+            </>
+        </Layout>
     )
 }
 

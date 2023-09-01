@@ -1,19 +1,7 @@
 import {FC} from "react";
+import {InputProps} from "../constants/types";
 
-const fixedInputClass = "rounded-md appearance-none relative block w-96 px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-
-interface InputProps {
-    handleChange: any;
-    value: string | number | any[];
-    labelText: string;
-    labelFor: string;
-    id: string;
-    name: string;
-    type?: string;
-    isRequired: boolean;
-    placeholder: string;
-    customClass?: string;
-}
+const fixedInputClass = "rounded-md appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm disabled:opacity-50"
 
 const Input: FC<InputProps> = ({
                          handleChange,
@@ -25,10 +13,11 @@ const Input: FC<InputProps> = ({
                          type,
                          isRequired = false,
                          placeholder,
-                         customClass
+                         customClass,
+    disabled
                      }) => {
     return (
-        <div className="my-5">
+        <div className="my-4 max-w-[400px]">
             <label htmlFor={labelFor} className="sr-only">
                 {labelText}
             </label>
@@ -41,6 +30,7 @@ const Input: FC<InputProps> = ({
                 required={isRequired}
                 className={fixedInputClass + customClass}
                 placeholder={placeholder}
+                disabled={disabled}
             />
         </div>
     )

@@ -1,16 +1,18 @@
 import {FC, useEffect, useState} from "react";
-import Header from "../../components/Navbar";
+import Header from "../../components/Header";
 import List from "../../components/List";
 import {getTokens} from "../../utils";
+import Layout from "../../components/Layout";
+import Loading from "../../components/Loading";
 
 const Elections: FC<{}> = () => {
 
     const [elections, setElections] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         getElections()
     }, []);
-
 
     const getElections = () => {
         const tokens = getTokens();
@@ -22,17 +24,24 @@ const Elections: FC<{}> = () => {
             setElections(res);
         }).catch((error) => {
             console.log("error: ", error)
+        }).finally(() => {
+            setLoading(false)
         })
     }
 
 
     return (
-        <>
-            <Header text="انتخابات درحال اجرا که شما امکان شرکت در آنها را دارید"/>
-            <div className="container px-3 ">
-                <List items={elections} onClickItem={() => console.log("onClick...")}/>
-            </div>
-        </>
+        <Layout>
+            {/*// @ts-ignore*/}
+            <>
+                <div className="font-bold text-gray-600 mb-6">
+                    انتخابات درحال اجرا که شما امکان شرکت در آنها را دارید.
+                </div>
+                {loading ? <Loading/> :
+                    <List items={elections} url="/elections"/>
+                }
+            </>
+        </Layout>
     )
 }
 

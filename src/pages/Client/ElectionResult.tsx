@@ -17,12 +17,12 @@ const ElectionResult: FC<{}> = () => {
         getElectionResult()
     }, []);
 
-    const getElectionResult = (e=null) => {
+    const getElectionResult = (e = null) => {
         // @ts-ignore
         e?.preventDefault();
         setLoading(true);
         const tokens = getTokens();
-        fetch(`${import.meta.env.VITE_API_BASE_URL}/v1/election/result/${params.id}`, {
+        fetch(`${import.meta.env.VITE_API_BASE_URL}/v1/election/student/result/${params.id}`, {
             method: "GET",
             headers: {Authorization: `Bearer ${tokens?.token}`}
         }).then(async (response: any) => {
@@ -41,36 +41,35 @@ const ElectionResult: FC<{}> = () => {
     }
 
     return (
-        <Layout admin>
+        <Layout>
             {/*// @ts-ignore*/}
             <>
                 <div className="font-bold text-gray-600 mb-6">
                     نتایج {election && election.electionName}
                 </div>
-                <form>
-                    {loading ? <Loading/>
-                        : election && election.candidateResults && election.candidateResults.length ? (
-                            election.candidateResults.map(item => {
-                                return (
-                                    <div
-                                        className="mb-3 flex justify-between max-w-[400px] px-2 py-2 rounded-md bg-gray-100">
+                {loading ? <Loading/>
+                    : election && election.candidateResults && election.candidateResults.length ? (
+                        election.candidateResults.map(item => {
+                            return (
+                                <div
+                                    className="mb-3 flex justify-between max-w-[400px] px-2 py-2 rounded-md bg-gray-100">
 
-                                        <div>
-                                            {item.candidate && item.candidate.name ? (
-                                                <span>{item.candidate.name}</span>) : null}
-                                            -
-                                            {item.candidate && item.candidate.info ? (
-                                                <span>{item.candidate.info}</span>) : null}
-                                        </div>
-                                        <div>
-                                            {item.voteCount} رای
-                                        </div>
+                                    <div>
+                                        {item.candidate && item.candidate.name ? (
+                                            <span>{item.candidate.name}</span>) : null}
+                                        -
+                                        {item.candidate && item.candidate.info ? (
+                                            <span>{item.candidate.info}</span>) : null}
                                     </div>
-                                )
-                            })
-                        ) : null}
-                    <FormAction handleSubmit={getElectionResult} loading={loading} text="بروزرسانی"/>
-                </form>
+                                    <div>
+                                        {item.voteCount} رای
+                                    </div>
+                                </div>
+                            )
+                        })
+                    ) : <div>
+                        درحال حاضر نتیجه این انتخابات قابل مشاهده نیست. روزهای آینده مجددا تلاش کنید.
+                    </div>}
             </>
         </Layout>
     )

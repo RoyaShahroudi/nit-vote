@@ -3,8 +3,9 @@ import Input from "../../components/Input";
 import FormAction from "../../components/FormAction";
 import VoteImage from "../../images/vote.svg"
 import axios from "axios";
-import {useNavigate} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {useAuth} from "../../utils/auth";
+import Layout from "../../components/Layout";
 
 const Register: FC<{}> = () => {
 
@@ -12,6 +13,7 @@ const Register: FC<{}> = () => {
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [passwordError, setPasswordError] = useState(false);
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const auth = useAuth();
 
@@ -21,27 +23,38 @@ const Register: FC<{}> = () => {
     }
 
     const handleRegister = () => {
-        if(password !== confirmPassword) {
+        if (password !== confirmPassword) {
             setPasswordError(true)
         } else {
-            axios.post('http://localhost:8080/v1/student/register', {
-                studentNumber: username,
-                password: password
+            setLoading(true);
+            fetch(`${import.meta.env.VITE_API_BASE_URL}/v1/student/register`, {
+                method: "post",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    studentNumber: username,
+                    password: password
+                })
             })
-                .then((response: any) => {
-                    console.log(response.data);
+                .then(async (response: any) => {
+                    setPasswordError(false);
+                    const res = await response.json();
                     // @ts-ignore
-                    auth?.login(response?.headers?.get('Authorization'), response.data);
+                    auth?.login(response?.headers?.get('Authorization'), res.studentNumber);
                     navigate("/elections");
                 })
                 .catch((error) => {
                     console.error(error);
-                });
+                }).finally(() => {
+                    setLoading(false)
+            });
         }
     }
 
     return (
-        <div className="h-screen flex justify-center items-center">
+        <Layout header={false}>
+            {/*// @ts-ignore*/}
             <div>
                 <div className="mb-10">
                     <div className="flex justify-center items-center">
@@ -58,18 +71,24 @@ const Register: FC<{}> = () => {
                     <div className="">
                         <Input
                             key="username"
-                            handleChange={(e: { target: { value: SetStateAction<string>; }; }) => setUsername(e.target.value)}
+                            handleChange={(e: { target: { value: SetStateAction<string>; }; }) => {
+                                setUsername(e.target.value);
+                                setPasswordError(false)
+                            }}
                             value={username}
-                            labelText="نام کاربری"
+                            labelText="شماره دانشجویی"
                             labelFor="username"
                             id="username"
                             name="username"
                             isRequired={true}
-                            placeholder="نام کاربری"
+                            placeholder="شماره دانشجویی"
                         />
                         <Input
                             key="password"
-                            handleChange={(e: { target: { value: SetStateAction<string>; }; }) => setPassword(e.target.value)}
+                            handleChange={(e: { target: { value: SetStateAction<string>; }; }) => {
+                                setPassword(e.target.value)
+                                setPasswordError(false)
+                            }}
                             value={password}
                             labelText="رمز عبور"
                             labelFor="password"
@@ -91,12 +110,19 @@ const Register: FC<{}> = () => {
                             isRequired={true}
                             placeholder="تایید رمز عبور"
                         />
-                        {passwordError && <span>رمزعبورهای انتخاب شده مطابقت ندارند.</span>}
-                        <FormAction handleSubmit={handleSubmit} text="ورود"/>
+                        {<span
+                            className={`${passwordError ? "text-opacity-100" : "text-opacity-0"} text-red-500 text-sm`}>رمزعبورهای انتخاب شده مطابقت ندارند.</span>}
+                        <FormAction loading={loading} handleSubmit={handleSubmit} text="ثبت نام" className="w-full"/>
+                        <div className="mt-3">
+                            حساب کاربری دارید؟
+                            <Link to="/login" className="mr-1 text-primary-blue">
+                                وارد شوید
+                            </Link>
+                        </div>
                     </div>
                 </form>
             </div>
-        </div>
+        </Layout>
     )
 }
 

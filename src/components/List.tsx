@@ -1,37 +1,31 @@
-import React, {FC, useEffect} from 'react';
-import PropTypes from 'prop-types';
-import {Link} from "react-router-dom"
+import React, {FC} from 'react';
 import ListItem from "./ListItem";
+import {ListProps} from "../constants/types";
+import {Link} from "react-router-dom";
 
-interface ListProps {
-    items: any[];
-    onClickItem?: () => void;
-    resultButton?: boolean;
-    ordered?: boolean;
-}
-
-const List: FC<ListProps> = ({items, onClickItem, resultButton, ordered = false}) => {
-
+const List: FC<ListProps> = ({items, url, resultButton, resultUrl, ordered = false}) => {
 
     return (
         <div>
             {items && items.length ? (
                 items.map(item => {
                     return (
-                        <ListItem onClickItem={onClickItem}>
-                            <div>
-                                {
-                                    ordered ? (<span>{item.id + 1}. </span>) : null
-                                }
-                                {item.label ? (<span>{item.label}</span>) : null}
-                            </div>
+                        <div className="flex items-center mb-3">
+                            <ListItem url={url} id={item.id}>
+                                <div>
+                                    {item.name ? (<span>{item.name}</span>) : null}
+                                    {item.username ? (<span>{item.username}</span>) : null}
+
+                                </div>
+                            </ListItem>
                             {
-                                resultButton ? (<button
-                                    className="px-2 py-1 text-white bg-blue-600 hover:text-blue-700 hover:bg-white focus:text-blue-700 focus:bg-white">
-                                    دیدن نتایج
-                                </button>) : null
+                                resultButton ? (
+                                    <Link to={`${resultUrl}/${item.id}`}
+                                          className="whitespace-nowrap mr-2 px-2 py-2 rounded text-gray-600 bg-gray-100 hover:text-white hover:bg-primary-blue focus:text-white focus:bg-primary-blue">
+                                        دیدن نتایج
+                                    </Link>) : null
                             }
-                        </ListItem>
+                        </div>
                     )
                 })
             ) : null}

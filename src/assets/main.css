@@ -1,0 +1,6 @@
+.datePicker input {
+    width: 100%;
+    outline: none;
+}
+
+/*.datePicker input:focus-visible {}*/

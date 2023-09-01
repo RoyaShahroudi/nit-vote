@@ -4,11 +4,13 @@ import FormAction from "../../components/FormAction";
 import VoteImage from "../../images/vote.svg"
 import {useNavigate} from "react-router-dom";
 import {useAuth} from "../../utils/auth";
+import Layout from "../../components/Layout";
 
 const Login: FC<{}> = () => {
 
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const auth = useAuth();
 
@@ -18,6 +20,7 @@ const Login: FC<{}> = () => {
     }
 
     const loginAccount = async () => {
+        setLoading(true);
         fetch(`${import.meta.env.VITE_API_BASE_URL}/v1/admin/login`, {
             method: "post",
             headers: {
@@ -33,7 +36,7 @@ const Login: FC<{}> = () => {
                     const token = response?.headers?.get('Authorization')
                     const res = await response.json();
                     // @ts-ignore
-                    auth?.login(token, res);
+                    auth?.login(token, res.username);
                     console.log("token: ", token);
                     navigate("/admin/elections");
                 } else {
@@ -42,12 +45,15 @@ const Login: FC<{}> = () => {
             }
         ).catch(error => {
             console.log("error: ", error)
+        }).finally(() => {
+            setLoading(false)
         })
     }
 
     return (
-        <div className="h-screen flex justify-center items-center">
-            <div>
+        <Layout header={false}>
+            {/*// @ts-ignore*/}
+            <>
                 <div className="mb-10">
                     <div className="flex justify-center items-center">
                         <img
@@ -84,11 +90,11 @@ const Login: FC<{}> = () => {
                             isRequired={true}
                             placeholder="رمز عبور"
                         />
-                        <FormAction handleSubmit={handleSubmit} text="ورود"/>
+                        <FormAction loading={loading} handleSubmit={handleSubmit} text="ورود" className="w-full"/>
                     </div>
                 </form>
-            </div>
-        </div>
+            </>
+        </Layout>
     )
 }
 
